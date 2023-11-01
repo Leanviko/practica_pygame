@@ -17,10 +17,11 @@ reloj = pygame.time.Clock()
 cord_x = 300
 cord_y = 200
         #*velocidad del cuadrado
-velocidad_x = 3
-velocidad_y = 3
+# velocidad_x = 3
+# velocidad_y = 3
 
-
+#mouse
+pygame.mouse.set_visible(False) #Esconde el puntero en la pantalla
 #bucle principal
 
 while True:
@@ -28,17 +29,23 @@ while True:
         if evento.type == pygame.QUIT:
             sys.exit()
         
-
+    ###-----INICIO LOGICA----###
     #* limites al movimiento
-    if(cord_x > 720 or cord_x < 0):
-        velocidad_x *= -1
-    if(cord_y > 420 or cord_y < 0):
-        velocidad_y *= -1
+    # if(cord_x > 720 or cord_x < 0):
+    #     velocidad_x *= -1
+    # if(cord_y > 420 or cord_y < 0):
+    #     velocidad_y *= -1
 
-    cord_x += velocidad_x
-    cord_y += velocidad_y
-
+    # cord_x += velocidad_x
+    # cord_y += velocidad_y
+    mouse_posicion = pygame.mouse.get_pos()
+    print(mouse_posicion)
+    cord_x = mouse_posicion[0]
+    cord_y = mouse_posicion[1]
+    ###-----INICIO LOGICA----###
     
+    ###-----FIN LOGICA----###
+
     pantalla.fill((150,255,100)) #* pinta la pantalla del color
     ###-----INICIO ZONA DE DIBUJO----###
     
