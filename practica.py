@@ -17,5 +17,12 @@ while True:
         if evento.type == pygame.QUIT:
             sys.exit()
 
-    pantalla.fill((255,255,0)) #* pinta la pantalla del color
+    
+    pantalla.fill((150,255,100)) #* pinta la pantalla del color
+    ###-----INICIO ZONA DE DIBUJO----###
+    pygame.draw.line(pantalla, (0,200,0),(10,100),(100,100),5)
+
+    ###-----FIN ZONA DE DIBUJO----###
+    pygame.display.flip() #*actualiza la pantalla
+
 
