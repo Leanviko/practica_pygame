@@ -41,7 +41,7 @@ class Enemigo(pygame.sprite.Sprite):
             self.velocidad_x *= -1
         elif self.rect.top > 800:
             self.rect.x = random.randrange(100,500)
-            self.rect.bottom = -10
+            self.rect.bottom = -1*random.randrange(10,700)
 
     
 
@@ -73,9 +73,28 @@ class Laser(pygame.sprite.Sprite):
         self.rect.y -= 11
         for laser in laser_lista:
             meteoro_colision_lista = pygame.sprite.spritecollide(laser, meteoro_lista, True)
+
+            enemigo_colision_lista = pygame.sprite.spritecollide(laser, enemigos_lista, True)
+            
             for meteoro in meteoro_colision_lista:
                 todos_sprites_lista.remove(laser)
                 laser_lista.remove(laser)
+
+                meteoro = Meteoro()
+                meteoro.rect.x = random.randrange(WIDHT)
+                meteoro.rect.bottom = -1*random.randrange(100,500)
+                meteoro_lista.add(meteoro)
+                todos_sprites_lista.add(meteoro)
+
+            for enemigo in enemigo_colision_lista:
+                todos_sprites_lista.remove(laser)
+                laser_lista.remove(laser)
+
+                enemigo = Enemigo()
+                enemigo.rect.bottom = -1*random.randrange(10,700)
+                enemigos_lista.add(enemigo)
+                todos_sprites_lista.add(enemigo)
+        
         if laser.rect.bottom < -10:
             todos_sprites_lista.remove(laser)
             laser_lista.remove(laser)
@@ -107,10 +126,11 @@ for i in range(10):
         meteoro.rect.y = random.randrange(HEIGTH)
         meteoro_lista.add(meteoro)
         todos_sprites_lista.add(meteoro)
-
-enemigo = Enemigo()
-enemigos_lista.add(enemigo)
-todos_sprites_lista.add(enemigo)
+for i in range(3): 
+        enemigo = Enemigo()
+        enemigo.rect.bottom = -1*random.randrange(10,700)
+        enemigos_lista.add(enemigo)
+        todos_sprites_lista.add(enemigo)
 
 
 #* nave como variable
