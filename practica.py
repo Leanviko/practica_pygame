@@ -58,7 +58,7 @@ class Enemigo(pygame.sprite.Sprite):
         self.rect.bottom = -10
         
         self.velocidad_x = 4
-        self.ritmo_disparo = 1000
+        self.ritmo_disparo = 600
         self.ultimo_disparo = pygame.time.get_ticks()
     #----------------------------------------------------------------experimental
     def disparar(self):
@@ -96,19 +96,22 @@ class Enemigo(pygame.sprite.Sprite):
 class Enemigo_2(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("Images/meteorito.png").convert_alpha()
+        self.image = pygame.image.load("Images/enemigo_2.png").convert_alpha()
         self.rect = self.image.get_rect()
+        
 
     def update(self):
         
-        self.rect.y += 2
+        self.rect.y += 3
+        
         enemigo_2_colision_lista = pygame.sprite.spritecollide(nave, enemigo_2_lista, True)
         if enemigo_2_colision_lista:
             nave.vidas -= 1
 
         if self.rect.top > 800:
             self.rect.bottom = -10
-            self.rect.x = random.randrange(WIDHT)
+            pos_random = random.randrange(WIDHT)
+            self.rect.x = pos_random
 
 
 
@@ -131,6 +134,13 @@ class Laser(pygame.sprite.Sprite):
         #movimiento
         self.rect.x += self.dx
         self.rect.y += self.dy
+
+class Boton(pygame.sprite.Sprite):
+    def __init__(self,pantalla,imagen,x,y):
+        self.image= imagen
+        self.rect = self.image.get_rect()
+        self.rect.center = (x,y)
+        pantalla.blit(self.image,self.rect)
 
 def mostrar_puntaje(pantalla, fuente, texto, color, dimension, x, y): 
     texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
@@ -155,12 +165,7 @@ def Escribir_texto(pantalla, fuente, texto, color, dimension, x, y):
     rectangulo.center = (x,y)
     pantalla.blit(superficie,rectangulo)
 
-class Boton(pygame.sprite.Sprite):
-    def __init__(self,pantalla,imagen,x,y):
-        self.image= imagen
-        self.rect = self.image.get_rect()
-        self.rect.center = (x,y)
-        pantalla.blit(self.image,self.rect)
+
 
 
 WIDHT = 600
@@ -168,6 +173,8 @@ HEIGTH = 800
 inicio = True
 corriendo = False
 final = False
+num_enemigos_2 = 8
+num_enemigo_negro = 3
 
 
 pygame.init()
@@ -195,13 +202,13 @@ laser_enemigo_lista = pygame.sprite.Group()
 enemigos_lista = pygame.sprite.Group()
 todos_sprites_lista = pygame.sprite.Group()
 
-for i in range(10):
+for i in range(num_enemigos_2):
         enemigo_2 = Enemigo_2()
-        enemigo_2.rect.x = random.randrange(WIDHT)
+        enemigo_2.rect.x = random.randrange(50,WIDHT-50)
         enemigo_2.rect.y = random.randrange(HEIGTH)
         enemigo_2_lista.add(enemigo_2)
         todos_sprites_lista.add(enemigo_2)
-for i in range(3): 
+for i in range(num_enemigo_negro): 
         enemigo = Enemigo()
         enemigo.rect.bottom = -1*random.randrange(10,700)
         enemigos_lista.add(enemigo)
@@ -210,8 +217,8 @@ for i in range(3):
 
 nave = Nave()
 todos_sprites_lista.add(nave)
-game_over = False
-#bucle principal-------------------------------------------------------
+
+
 
 while inicio:
     boton_inicio = pygame.image.load("Images/inicio.png").convert_alpha()
@@ -238,7 +245,6 @@ while inicio:
 
 
 while corriendo:
-
 
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
