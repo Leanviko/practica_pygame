@@ -14,7 +14,7 @@ class Nave(pygame.sprite.Sprite):
         self.mover_arriba = False
         self.mover_abajo = False
         self.disparo= False
-        self.vida = 5
+        self.vidas = 5
 
     
     def disparar(self):
@@ -42,6 +42,9 @@ class Nave(pygame.sprite.Sprite):
             self.rect.y -= 5
         if self.mover_abajo and self.rect.bottom < HEIGTH:
             self.rect.y += 5
+        
+        if self.vidas <= 0:
+            self.vidas = 0
 
         
 
@@ -80,7 +83,7 @@ class Enemigo(pygame.sprite.Sprite):
 
         enemigos_colision_nave = pygame.sprite.spritecollide(nave, enemigos_lista, True)
         if enemigos_colision_nave:
-            nave.vida -= 1
+            nave.vidas -= 1
 
         if self.rect.right > 550 or self.rect.left < 50:
             self.velocidad_x *= -1
@@ -101,7 +104,7 @@ class Enemigo_2(pygame.sprite.Sprite):
         self.rect.y += 2
         enemigo_2_colision_lista = pygame.sprite.spritecollide(nave, enemigo_2_lista, True)
         if enemigo_2_colision_lista:
-            nave.vida -= 1
+            nave.vidas -= 1
 
         if self.rect.top > 800:
             self.rect.bottom = -10
@@ -129,18 +132,38 @@ class Laser(pygame.sprite.Sprite):
         self.rect.x += self.dx
         self.rect.y += self.dy
 
+def mostrar_puntaje(pantalla, fuente, texto, color, dimension, x, y): 
+    texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
+    superficie = texto_puntaje.render(texto,True,color,None)
+    rectangulo = superficie.get_rect()
+    rectangulo.right = x
+    rectangulo.top = y
+    pantalla.blit(superficie,rectangulo)
+
+def mostrar_vida(pantalla, fuente, texto, color, dimension, x, y): 
+    texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
+    superficie = texto_puntaje.render(texto,True,color,None)
+    rectangulo = superficie.get_rect()
+    rectangulo.left = x
+    rectangulo.top = y
+    pantalla.blit(superficie,rectangulo)
+
+def escribir_texto(pantalla, fuente, texto, color, dimension, x, y): 
+    texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
+    superficie = texto_puntaje.render(texto,True,color,None)
+    rectangulo = superficie.get_rect()
+    rectangulo.center = (x,y)
+    pantalla.blit(superficie,rectangulo)
+
+def pantalla_inicio_final():
+    
+    pygame.display.flip()
+    waiting = True
+
         
 WIDHT = 600
 HEIGTH = 800
-#Sonidos
-#musica de fondo
-
-
-
-
-
-
-            
+corriendo = False
 
 
 pygame.init()
@@ -159,23 +182,6 @@ reloj = pygame.time.Clock()
 background = pygame.image.load("Images/Nebula.png").convert()
 
 puntaje = 0
-
-def mostrar_puntaje(pantalla, fuente, texto, color, dimension, x, y): 
-    texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
-    superficie = texto_puntaje.render(texto,True,color,None)
-    rectangulo = superficie.get_rect()
-    rectangulo.right = x
-    rectangulo.top = y
-    pantalla.blit(superficie,rectangulo)
-
-def mostrar_vida(pantalla, fuente, texto, color, dimension, x, y): 
-    texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
-    superficie = texto_puntaje.render(texto,True,color,None)
-    rectangulo = superficie.get_rect()
-    rectangulo.left = x
-    rectangulo.top = y
-    pantalla.blit(superficie,rectangulo)
-
 
 
 #*grupos de sprites
@@ -200,9 +206,31 @@ for i in range(3):
 
 nave = Nave()
 todos_sprites_lista.add(nave)
-
+game_over = False
 #bucle principal-------------------------------------------------------
-while True:
+
+while corriendo == False:
+    reloj.tick(23)
+    for evento in pygame.event.get():
+        if evento.type == pygame.QUIT:
+            sys.exit()
+    
+    pantalla.fill((0,0,0))
+    escribir_texto(pantalla,'Arial', "Inicio", (255,255,255), 50 ,WIDHT/2,HEIGTH/2)
+    escribir_texto(pantalla,'Arial', "presione click", (255,255,255), 20 ,WIDHT/2,500)
+
+
+    if pygame.mouse.get_pressed()[0]:
+        pantalla_inicio = False
+        corriendo = True
+    
+    pygame.display.update()
+
+
+
+while corriendo:
+
+
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             sys.exit()
@@ -232,6 +260,8 @@ while True:
         
     ###-----INICIO LOGICA----###
 
+    if game_over == True:
+        pantalla_inicio_final()
 
     for laser in laser_lista:
             enemigo_2_colision_lista = pygame.sprite.spritecollide(laser, enemigo_2_lista, True)
@@ -269,8 +299,10 @@ while True:
         enemigo_laser_lista = pygame.sprite.spritecollide(nave, laser_enemigo_lista, True)
 
         if enemigo_laser_lista:
-            nave.vida -= 1
+            nave.vidas -= 1
 
+    if nave.vidas == 0:
+        game_over = True
 
     todos_sprites_lista.update()
     
@@ -282,7 +314,7 @@ while True:
     enemigo.disparar()
 
     mostrar_puntaje(pantalla,'Arial',f'puntaje: {str(puntaje).zfill(4)}',(255,255,255),30,WIDHT-70, 50)
-    mostrar_vida(pantalla,'Arial',str(f'Vidas: {nave.vida}'),(255,255,255),30,50, 50)
+    mostrar_vida(pantalla,'Arial',str(f'Vidas: {nave.vidas}'),(255,255,255),30,50, 50)
     
     
 
