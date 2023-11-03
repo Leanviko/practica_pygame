@@ -1,3 +1,4 @@
+import math
 import pygame, sys, random
 
 class Nave(pygame.sprite.Sprite):
@@ -11,9 +12,26 @@ class Nave(pygame.sprite.Sprite):
         self.mover_izquierda = False
         self.mover_arriba = False
         self.mover_abajo = False
+
+        self.disparo= False
+
+    
+    def disparar(self):
+        posicion_mira = pygame.mouse.get_pos()
+        dist_x = posicion_mira[0] - self.rect.midtop[0]
+        dist_y = -(posicion_mira[1] - self.rect.midtop[1])
+        self.angulo = math.degrees(math.atan2(dist_x,dist_y))
+
+        if pygame.mouse.get_pressed()[0] and self.disparo == False:
+            self.disparo = True
+            laser_ob = Laser(self.rect.midtop[0],self.rect.midtop[1],self.angulo)
+            laser_lista.add(laser_ob)
+            todos_sprites_lista.add(laser_ob)
+        if pygame.mouse.get_pressed()[0] == False:
+            self.disparo = False
+        
         
     def update(self):
-        
         if self.mover_derecha and self.rect.right < WIDHT:
             self.rect.x += 3
         if self.mover_izquierda and self.rect.left > 0:
@@ -22,6 +40,8 @@ class Nave(pygame.sprite.Sprite):
             self.rect.y -= 3
         if self.mover_abajo and self.rect.bottom < HEIGTH:
             self.rect.y += 3
+
+        
 
 class Enemigo(pygame.sprite.Sprite):
     def __init__(self):
@@ -63,14 +83,23 @@ class Meteoro(pygame.sprite.Sprite):
 
 
 class Laser(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,x,y,angulo):
+        pygame.sprite.Sprite.__init__(self)
         self.image = pygame.image.load("Images/laser.png").convert_alpha()
         self.rect = self.image.get_rect()
-
+        self.rect.x = x
+        self.rect.y = y
+        self.angulo = math.radians(angulo)#*convierte angulo a radianes
+        self.velocidad_laser = 11
+        self.dx = math.sin(self.angulo)*self.velocidad_laser
+        self.dy = -(math.cos(self.angulo)*self.velocidad_laser)
         
     def update(self):
-        self.rect.y -= 11
+        #movimiento
+        self.rect.x += self.dx
+        self.rect.y += self.dy
+
+
         for laser in laser_lista:
             meteoro_colision_lista = pygame.sprite.spritecollide(laser, meteoro_lista, True)
 
@@ -133,14 +162,13 @@ for i in range(3):
         todos_sprites_lista.add(enemigo)
 
 
-#* nave como variable
 nave = Nave()
 todos_sprites_lista.add(nave)
-laser = Laser()
+#laser = Laser()
 
 
 #mouse
-pygame.mouse.set_visible(False) #Esconde el puntero en la pantalla
+#pygame.mouse.set_visible(False) #Esconde el puntero en la pantalla
 
 #bucle principal-------------------------------------------------------
 while True:
@@ -157,12 +185,12 @@ while True:
                 nave.mover_arriba = True
             if evento.key == pygame.K_DOWN:
                 nave.mover_abajo = True
-            if evento.key == pygame.K_SPACE:
-                laser = Laser()
-                laser.rect.center = nave.rect.center
-                laser.rect.bottom = nave.rect.top
-                laser_lista.add(laser)
-                todos_sprites_lista.add(laser)
+            # if evento.key == pygame.K_SPACE:
+            #     laser = Laser()
+            #     laser.rect.center = nave.rect.center
+            #     laser.rect.bottom = nave.rect.top
+            #     laser_lista.add(laser)
+            #     todos_sprites_lista.add(laser)
 
         elif evento.type == pygame.KEYUP:
             if evento.key == pygame.K_LEFT: 
@@ -178,13 +206,14 @@ while True:
         
     ###-----INICIO LOGICA----###
     
-    
     todos_sprites_lista.update()
     ###-----fin LOGICA----###
     pantalla.blit(background, (0,0))
     ###-----INICIO ZONA DE DIBUJO----###
 
     todos_sprites_lista.draw(pantalla)
+    nave.disparar()
+    print(len(laser_lista))
     
     
 
