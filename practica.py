@@ -14,7 +14,7 @@ class Nave(pygame.sprite.Sprite):
         self.mover_arriba = False
         self.mover_abajo = False
         self.disparo= False
-        self.vida = 1000
+        self.vida = 5
 
     
     def disparar(self):
@@ -28,19 +28,20 @@ class Nave(pygame.sprite.Sprite):
             laser_ob = Laser(self.rect.midtop[0],self.rect.midtop[1],self.angulo)
             laser_lista.add(laser_ob)
             todos_sprites_lista.add(laser_ob)
+            laser_nave.play()
         if pygame.mouse.get_pressed()[0] == False:
             self.disparo = False
         
         
     def update(self):
         if self.mover_derecha and self.rect.right < WIDHT:
-            self.rect.x += 3
+            self.rect.x += 5
         if self.mover_izquierda and self.rect.left > 0:
-            self.rect.x -= 3
+            self.rect.x -= 5
         if self.mover_arriba and self.rect.top > 0:
-            self.rect.y -= 3
+            self.rect.y -= 5
         if self.mover_abajo and self.rect.bottom < HEIGTH:
-            self.rect.y += 3
+            self.rect.y += 5
 
         
 
@@ -79,7 +80,7 @@ class Enemigo(pygame.sprite.Sprite):
 
         enemigos_colision_nave = pygame.sprite.spritecollide(nave, enemigos_lista, True)
         if enemigos_colision_nave:
-            nave.vida -= 200
+            nave.vida -= 1
 
         if self.rect.right > 550 or self.rect.left < 50:
             self.velocidad_x *= -1
@@ -89,7 +90,7 @@ class Enemigo(pygame.sprite.Sprite):
 
     
 
-class Meteoro(pygame.sprite.Sprite):
+class Enemigo_2(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Images/meteorito.png").convert_alpha()
@@ -98,9 +99,9 @@ class Meteoro(pygame.sprite.Sprite):
     def update(self):
         
         self.rect.y += 2
-        meteoro_colision_lista = pygame.sprite.spritecollide(nave, meteoro_lista, True)
-        if meteoro_colision_lista:
-            nave.vida -= 100
+        enemigo_2_colision_lista = pygame.sprite.spritecollide(nave, enemigo_2_lista, True)
+        if enemigo_2_colision_lista:
+            nave.vida -= 1
 
         if self.rect.top > 800:
             self.rect.bottom = -10
@@ -131,7 +132,12 @@ class Laser(pygame.sprite.Sprite):
         
 WIDHT = 600
 HEIGTH = 800
-#*puntaje
+#Sonidos
+#musica de fondo
+
+
+
+
 
 
             
@@ -140,7 +146,13 @@ HEIGTH = 800
 pygame.init()
 
 
-
+pygame.mixer.music.load('Sounds/Thunder Force IV OST 06 - Evil Destroyer.mp3')
+laser_nave = pygame.mixer.Sound('Sounds/disparo_nave.wav')
+explosion_enemigo = pygame.mixer.Sound('Sounds/explosion_enemigo.wav')
+laser_nave.set_volume(0.2) 
+explosion_enemigo.set_volume(0.4) 
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.3)
 
 pantalla = pygame.display.set_mode((WIDHT, HEIGTH)) 
 reloj = pygame.time.Clock() 
@@ -167,18 +179,18 @@ def mostrar_vida(pantalla, fuente, texto, color, dimension, x, y):
 
 
 #*grupos de sprites
-meteoro_lista = pygame.sprite.Group()
+enemigo_2_lista = pygame.sprite.Group()
 laser_lista = pygame.sprite.Group()
 laser_enemigo_lista = pygame.sprite.Group()
 enemigos_lista = pygame.sprite.Group()
 todos_sprites_lista = pygame.sprite.Group()
 
 for i in range(10):
-        meteoro = Meteoro()
-        meteoro.rect.x = random.randrange(WIDHT)
-        meteoro.rect.y = random.randrange(HEIGTH)
-        meteoro_lista.add(meteoro)
-        todos_sprites_lista.add(meteoro)
+        enemigo_2 = Enemigo_2()
+        enemigo_2.rect.x = random.randrange(WIDHT)
+        enemigo_2.rect.y = random.randrange(HEIGTH)
+        enemigo_2_lista.add(enemigo_2)
+        todos_sprites_lista.add(enemigo_2)
 for i in range(3): 
         enemigo = Enemigo()
         enemigo.rect.bottom = -1*random.randrange(10,700)
@@ -222,31 +234,31 @@ while True:
 
 
     for laser in laser_lista:
-            meteoro_colision_lista = pygame.sprite.spritecollide(laser, meteoro_lista, True)
+            enemigo_2_colision_lista = pygame.sprite.spritecollide(laser, enemigo_2_lista, True)
             enemigo_colision_lista = pygame.sprite.spritecollide(laser, enemigos_lista, True)
             
 
             if enemigo_colision_lista:
                 puntaje += 10
-            if meteoro_colision_lista:
+            if enemigo_2_colision_lista:
                 puntaje += 1
+ 
             
-            
-            
-            for meteoro in meteoro_colision_lista:
+            for enemigo_2 in enemigo_2_colision_lista:
                 todos_sprites_lista.remove(laser)
                 laser_lista.remove(laser)
+                explosion_enemigo.play()
 
-                meteoro = Meteoro()
-                meteoro.rect.x = random.randrange(WIDHT)
-                meteoro.rect.bottom = -1*random.randrange(100,500)
-                meteoro_lista.add(meteoro)
-                todos_sprites_lista.add(meteoro)
+                enemigo_2 = Enemigo_2()
+                enemigo_2.rect.x = random.randrange(WIDHT)
+                enemigo_2.rect.bottom = -1*random.randrange(100,500)
+                enemigo_2_lista.add(enemigo_2)
+                todos_sprites_lista.add(enemigo_2)
 
             for enemigo in enemigo_colision_lista:
                 todos_sprites_lista.remove(laser)
                 laser_lista.remove(laser)
-                
+                explosion_enemigo.play()
 
                 enemigo = Enemigo()
                 enemigo.rect.bottom = -1*random.randrange(10,700)
@@ -257,7 +269,7 @@ while True:
         enemigo_laser_lista = pygame.sprite.spritecollide(nave, laser_enemigo_lista, True)
 
         if enemigo_laser_lista:
-            nave.vida -= 50
+            nave.vida -= 1
 
 
     todos_sprites_lista.update()
@@ -269,8 +281,8 @@ while True:
     nave.disparar()
     enemigo.disparar()
 
-    mostrar_puntaje(pantalla,'Arial',str(puntaje),(255,255,255),30,WIDHT-70, 50)
-    mostrar_vida(pantalla,'Arial',str(f'Vida: {nave.vida}'),(255,255,255),30,50, 50)
+    mostrar_puntaje(pantalla,'Arial',f'puntaje: {str(puntaje).zfill(4)}',(255,255,255),30,WIDHT-70, 50)
+    mostrar_vida(pantalla,'Arial',str(f'Vidas: {nave.vida}'),(255,255,255),30,50, 50)
     
     
 
