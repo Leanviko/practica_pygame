@@ -155,15 +155,13 @@ def escribir_texto(pantalla, fuente, texto, color, dimension, x, y):
     rectangulo.center = (x,y)
     pantalla.blit(superficie,rectangulo)
 
-def pantalla_inicio_final():
-    
-    pygame.display.flip()
-    waiting = True
 
         
 WIDHT = 600
 HEIGTH = 800
+inicio = True
 corriendo = False
+final = False
 
 
 pygame.init()
@@ -175,7 +173,7 @@ explosion_enemigo = pygame.mixer.Sound('Sounds/explosion_enemigo.wav')
 laser_nave.set_volume(0.2) 
 explosion_enemigo.set_volume(0.4) 
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.set_volume(0.2)
 
 pantalla = pygame.display.set_mode((WIDHT, HEIGTH)) 
 reloj = pygame.time.Clock() 
@@ -209,7 +207,7 @@ todos_sprites_lista.add(nave)
 game_over = False
 #bucle principal-------------------------------------------------------
 
-while corriendo == False:
+while inicio:
     reloj.tick(23)
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -221,7 +219,7 @@ while corriendo == False:
 
 
     if pygame.mouse.get_pressed()[0]:
-        pantalla_inicio = False
+        inicio = False
         corriendo = True
     
     pygame.display.update()
@@ -302,10 +300,11 @@ while corriendo:
             nave.vidas -= 1
 
     if nave.vidas == 0:
-        game_over = True
+        pygame.mixer.music.stop()
+        corriendo = False
+        final = True
 
     todos_sprites_lista.update()
-    
     ###-----fin LOGICA----###
     pantalla.blit(background, (0,0))
     ###-----INICIO ZONA DE DIBUJO----###
@@ -315,6 +314,19 @@ while corriendo:
 
     mostrar_puntaje(pantalla,'Arial',f'puntaje: {str(puntaje).zfill(4)}',(255,255,255),30,WIDHT-70, 50)
     mostrar_vida(pantalla,'Arial',str(f'Vidas: {nave.vidas}'),(255,255,255),30,50, 50)
+
+    while final :
+        reloj.tick(23)
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                sys.exit()
+    
+        pantalla.fill((0,0,0))
+        escribir_texto(pantalla,'Arial', "Estas muerto", (255,100,100), 50 ,WIDHT/2,HEIGTH/2)
+        escribir_texto(pantalla,'Arial', f"puntaje: {puntaje}", (255,255,255), 20 ,WIDHT/2,500)
+
+    
+        pygame.display.update()
     
     
 
