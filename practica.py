@@ -148,15 +148,21 @@ def mostrar_vida(pantalla, fuente, texto, color, dimension, x, y):
     rectangulo.top = y
     pantalla.blit(superficie,rectangulo)
 
-def escribir_texto(pantalla, fuente, texto, color, dimension, x, y): 
+def Escribir_texto(pantalla, fuente, texto, color, dimension, x, y): 
     texto_puntaje = pygame.font.SysFont(fuente, dimension,True)
     superficie = texto_puntaje.render(texto,True,color,None)
     rectangulo = superficie.get_rect()
     rectangulo.center = (x,y)
     pantalla.blit(superficie,rectangulo)
 
+class Boton(pygame.sprite.Sprite):
+    def __init__(self,pantalla,imagen,x,y):
+        self.image= imagen
+        self.rect = self.image.get_rect()
+        self.rect.center = (x,y)
+        pantalla.blit(self.image,self.rect)
 
-        
+
 WIDHT = 600
 HEIGTH = 800
 inicio = True
@@ -173,7 +179,7 @@ explosion_enemigo = pygame.mixer.Sound('Sounds/explosion_enemigo.wav')
 laser_nave.set_volume(0.2) 
 explosion_enemigo.set_volume(0.4) 
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.set_volume(0.3)
 
 pantalla = pygame.display.set_mode((WIDHT, HEIGTH)) 
 reloj = pygame.time.Clock() 
@@ -208,22 +214,27 @@ game_over = False
 #bucle principal-------------------------------------------------------
 
 while inicio:
+    boton_inicio = pygame.image.load("Images/inicio.png").convert_alpha()
+    boton_salir = pygame.image.load("Images/salir.png").convert_alpha()
     reloj.tick(23)
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
             sys.exit()
     
     pantalla.fill((0,0,0))
-    escribir_texto(pantalla,'Arial', "Inicio", (255,255,255), 50 ,WIDHT/2,HEIGTH/2)
-    escribir_texto(pantalla,'Arial', "presione click", (255,255,255), 20 ,WIDHT/2,500)
+    boton_inicio = Boton(pantalla,boton_inicio,WIDHT/2,500)
+    boton_salir = Boton(pantalla,boton_salir,WIDHT/2,600)
+    Escribir_texto(pantalla,'Arial', "Inicio", (255,255,255), 50 ,WIDHT/2,HEIGTH/2)
+    #Escribir_texto(pantalla,'Arial', "presione click", (255,255,255), 20 ,WIDHT/2,500)
 
-
-    if pygame.mouse.get_pressed()[0]:
+    if boton_inicio.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         inicio = False
         corriendo = True
+    if boton_salir.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+        sys.exit()
     
     pygame.display.update()
-
+        
 
 
 while corriendo:
@@ -258,8 +269,7 @@ while corriendo:
         
     ###-----INICIO LOGICA----###
 
-    if game_over == True:
-        pantalla_inicio_final()
+
 
     for laser in laser_lista:
             enemigo_2_colision_lista = pygame.sprite.spritecollide(laser, enemigo_2_lista, True)
@@ -270,7 +280,6 @@ while corriendo:
                 puntaje += 10
             if enemigo_2_colision_lista:
                 puntaje += 1
- 
             
             for enemigo_2 in enemigo_2_colision_lista:
                 todos_sprites_lista.remove(laser)
@@ -300,9 +309,9 @@ while corriendo:
             nave.vidas -= 1
 
     if nave.vidas == 0:
-        pygame.mixer.music.stop()
         corriendo = False
         final = True
+        pygame.mixer.music.stop()
 
     todos_sprites_lista.update()
     ###-----fin LOGICA----###
@@ -315,15 +324,15 @@ while corriendo:
     mostrar_puntaje(pantalla,'Arial',f'puntaje: {str(puntaje).zfill(4)}',(255,255,255),30,WIDHT-70, 50)
     mostrar_vida(pantalla,'Arial',str(f'Vidas: {nave.vidas}'),(255,255,255),30,50, 50)
 
-    while final :
+    while final:
         reloj.tick(23)
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 sys.exit()
     
         pantalla.fill((0,0,0))
-        escribir_texto(pantalla,'Arial', "Estas muerto", (255,100,100), 50 ,WIDHT/2,HEIGTH/2)
-        escribir_texto(pantalla,'Arial', f"puntaje: {puntaje}", (255,255,255), 20 ,WIDHT/2,500)
+        Escribir_texto(pantalla,'Arial', "Estas muerto", (255,100,100), 50 ,WIDHT/2,HEIGTH/2)
+        Escribir_texto(pantalla,'Arial', f"puntaje: {puntaje}", (255,255,255), 20 ,WIDHT/2,500)
 
     
         pygame.display.update()
